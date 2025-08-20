@@ -1,0 +1,12 @@
+streamlit
+python-dotenv
+langchain
+dotenv
+langchain-google-genai
+langchain-chroma
+langchain-community
+langchain-core
+streamlit-chat
+streamlit-extras
+youtube-transcript-api
+
