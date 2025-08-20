@@ -60,3 +60,7 @@ Thanks to the open-source communities behind LangChain, Streamlit, and Google’
 Feel free to contribute, report issues, or request features.
 
 ---
+## 🙋‍♂️ Author
+- Abhishek Agarwal
+- 🌐 LinkedIn https://www.linkedin.com/in/abhishek07122002/
+  
