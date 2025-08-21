@@ -1,6 +1,7 @@
 import streamlit as st
 from dotenv import load_dotenv
 import YouTubeTranscript as ytscript
+import rag.py as rag
 from langchain_community.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
@@ -22,31 +23,6 @@ st.title("🎬 Chat with YouTube Video")
 def format_docs(retrieved_context):
     return "\n\n".join(doc.page_content for doc in retrieved_context)
 
-# Build your LangChain pipeline
-def build_chain(transcript):
-    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    chunk = splitter.create_documents([transcript])
-    embedding = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-    vector_store = Chroma.from_documents(chunk, embedding, persist_directory="./Database_db")
-    retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k":3})
-    llm = ChatGoogleGenerativeAI(model='gemini-1.5-flash')
-    parser = StrOutputParser()
-    prompt = PromptTemplate(
-        template=(
-            "You are a helpful assistant.\n"
-            "Answer ONLY from the provided transcript context.\n"
-            "If the context is insufficient, just say you don't know.\n\n"
-            "{context}\n\nQuestion: {question}"
-        ), 
-        input_variables=['context', 'question']
-    )
-    parallel_chain = RunnableParallel({
-        'context': retriever | RunnableLambda(format_docs),
-        'question': RunnablePassthrough()
-    })
-    main_chain = parallel_chain | prompt | llm | parser
-    return main_chain
-
 # Sidebar: Input video URL and fetch transcript
 with st.sidebar:
     st.header("Load YouTube Transcript")
@@ -55,7 +31,7 @@ with st.sidebar:
         with st.spinner("Fetching transcript..."):
             transcript = ytscript.extract_transcript_details(youtube_url)
             if transcript:
-                st.session_state["main_chain"] = build_chain(transcript)
+                st.session_state["main_chain"] = rag.build_chain(transcript)
                 st.session_state["messages"] = []
                 st.session_state["transcript_loaded"] = True
                 st.success("Transcript loaded! You may start chatting below.")
@@ -108,3 +84,4 @@ if st.session_state["transcript_loaded"]:
 
 else:
     st.info("Enter a YouTube video URL on the sidebar and load transcript to start chatting.")
+
