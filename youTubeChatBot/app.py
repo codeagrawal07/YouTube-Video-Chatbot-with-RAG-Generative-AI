@@ -1,27 +1,14 @@
 import streamlit as st
-from dotenv import load_dotenv
+import rag as rag
 import YouTubeTranscript as ytscript
-import rag.py as rag
-from langchain_community.document_loaders import TextLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
-from langchain_chroma import Chroma
-from langchain_core.prompts import PromptTemplate
-from langchain_core.runnables import RunnableParallel, RunnablePassthrough, RunnableLambda
-from langchain_core.output_parsers import StrOutputParser
 from streamlit_chat import message
 from streamlit_extras.colored_header import colored_header
 from streamlit_extras.add_vertical_space import add_vertical_space
 
-load_dotenv()
 
 st.set_page_config(page_title="YouTube Video Chatbot", layout="wide")
 
 st.title("🎬 Chat with YouTube Video")
-
-# Helper to format docs for retriever
-def format_docs(retrieved_context):
-    return "\n\n".join(doc.page_content for doc in retrieved_context)
 
 # Sidebar: Input video URL and fetch transcript
 with st.sidebar:
@@ -40,7 +27,7 @@ with st.sidebar:
     add_vertical_space(5)
     st.write('Made with ❤️ by ABHISHEK AGRAWAL')
     add_vertical_space(3)
-    linkedin_url = "https://www.linkedin.com/in/abhishek07122002//"  
+    linkedin_url = "https://www.linkedin.com/in/abhishek07122002/"  
     st.markdown(
     f"""
     <a href="{linkedin_url}" target="_blank">
@@ -50,7 +37,6 @@ with st.sidebar:
     """,
     unsafe_allow_html=True
 )          
-
 # Initialize or check session_state variables    
 if "main_chain" not in st.session_state:
     st.session_state["main_chain"] = None
@@ -61,7 +47,7 @@ if "transcript_loaded" not in st.session_state:
 
 # Main chat window UI
 if st.session_state["transcript_loaded"]:
-    colored_header('💬 ChatBot Conversation', '', 'green-50')
+    colored_header('💬 ChatBot Conversation','', 'green-50')
     add_vertical_space(1)
 
     # Display previous messages from session state as a chat
@@ -84,4 +70,3 @@ if st.session_state["transcript_loaded"]:
 
 else:
     st.info("Enter a YouTube video URL on the sidebar and load transcript to start chatting.")
-
